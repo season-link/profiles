@@ -1,0 +1,34 @@
+version: "3.8"
+services:
+  backend:
+    image: season-link-profiles
+    build: ./
+    env_file:
+      - .env
+    ports:
+      - "8080:3000"
+    depends_on:
+      season-link-postgres:
+        condition: service_healthy
+
+  season-link-postgres:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=profiles
+      - POSTGRES_USER=profiles
+      - POSTGRES_DB=profiles
+    volumes:
+      # Data folder
+      - "./postgres_data:/var/lib/postgresql/data"
+      # Initial migration folder
+      - "./migrations:/docker-entrypoint-initdb.d"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U profiles"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+    ports:
+      - "5432:5432"
