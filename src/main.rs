@@ -8,7 +8,9 @@ use api::{
     },
     experience::{create_experience, get_experiences, update_experience},
     middlewares::is_admin::is_admin,
-    reference::{create_reference, delete_reference, get_reference, get_references},
+    reference::{
+        create_reference, delete_reference, get_reference, get_references, update_reference,
+    },
     utils::handler_404,
 };
 use axum::{
@@ -78,7 +80,7 @@ async fn main() -> anyhow::Result<()> {
             "/experience/:experience_id",
             get(get_reference)
                 .delete(delete_reference)
-                .put(update_experience),
+                .put(update_reference),
         );
 
     // Register fallback
