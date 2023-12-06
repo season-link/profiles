@@ -12,7 +12,7 @@ use crate::SharedState;
 use super::{
     dtos::experience::Experience,
     middlewares::auth_headers::AuthHeaders,
-    utils::{check_query_effective, AppError},
+    utils::{check_job_valid, check_query_effective, AppError},
 };
 
 pub async fn create_experience(
@@ -24,6 +24,8 @@ pub async fn create_experience(
     }: AuthHeaders,
     Valid(Json(experience)): Valid<Json<Experience>>,
 ) -> axum::response::Result<Json<Experience>, AppError> {
+    check_job_valid(&experience.job_id).await?;
+
     sqlx::query("insert into experience values ($1, $2, $3, $4, $5, $6, $7);")
         .bind(&experience.id)
         .bind(user_uuid)
@@ -90,6 +92,8 @@ pub async fn update_experience(
     Path(reference_id): Path<Uuid>,
     Valid(Json(experience)): Valid<Json<Experience>>,
 ) -> axum::response::Result<Json<Experience>, AppError> {
+    check_job_valid(&experience.job_id).await?;
+
     let result = sqlx::query(
         "UPDATE reference
         SET company_name=$1, job_id=$2, start_time=$3, end_time=$4, description=$5

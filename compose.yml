@@ -5,8 +5,7 @@ services:
     build: ./
     env_file:
       - .env
-    ports:
-      - "8080:3000"
+    network_mode: host
     depends_on:
       season-link-postgres:
         condition: service_healthy
@@ -18,17 +17,16 @@ services:
       - POSTGRES_PASSWORD=profiles
       - POSTGRES_USER=profiles
       - POSTGRES_DB=profiles
+    network_mode: host
     volumes:
       # Data folder
       - "./postgres_data:/var/lib/postgresql/data"
       # Initial migration folder
       - "./migrations:/docker-entrypoint-initdb.d"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U profiles"]
+      test: ["CMD-SHELL", "pg_isready -U profiles -p 5344"]
       interval: 5s
       timeout: 5s
       retries: 5
       start_period: 5s
-
-    ports:
-      - "5432:5432"
+    command: -p 5344

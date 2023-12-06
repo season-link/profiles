@@ -31,6 +31,17 @@ pub struct Candidate {
     pub job_id: Uuid,
 }
 
+// Create user Dto
+#[derive(Debug, Validate, Serialize, Deserialize, sqlx::FromRow)]
+pub struct CreateCandidate {
+    #[validate]
+    #[serde(flatten)]
+    pub candidate: Candidate,
+
+    #[validate(length(min = 4))]
+    pub password: String,
+}
+
 /// A simpler version of the candidate, used to list stuff
 #[derive(Debug, Validate, Serialize, Deserialize, sqlx::FromRow)]
 pub struct SimpleCandidate {

@@ -6,10 +6,14 @@ COPY ./Cargo.* /build
 
 WORKDIR /build
 
+RUN cargo fetch
+
 RUN cargo build
 
 
-FROM debian:latest as runner
+FROM debian:12 as runner
+
+RUN apt update && apt install -y openssl
 
 # COPY only the executable
 COPY --from=builder /build/target/debug/season-link-profiles /opt

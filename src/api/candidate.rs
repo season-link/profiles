@@ -1,6 +1,5 @@
 use std::sync::Arc;
 
-use anyhow::anyhow;
 use axum::{
     debug_handler,
     extract::{Path, State},
@@ -10,7 +9,13 @@ use axum_valid::Valid;
 use sqlx::{postgres::PgRow, Row};
 use uuid::Uuid;
 
-use crate::SharedState;
+use crate::{
+    api::{
+        dtos::candidate::CreateCandidate,
+        utils::{check_job_valid, create_keycloak_user},
+    },
+    SharedState,
+};
 
 use super::{
     dtos::{
@@ -22,33 +27,35 @@ use super::{
 };
 
 /// Create the candidate inside the DB
+#[debug_handler]
 pub async fn create_candidate(
     State(state): State<Arc<SharedState>>,
-    Valid(Json(candidate)): Valid<Json<Candidate>>,
+    Valid(Json(mut dto)): Valid<Json<CreateCandidate>>,
 ) -> axum::response::Result<Json<Candidate>, AppError> {
-    println!("{:?}", candidate);
+    println!("{:?}", dto);
+
+    check_job_valid(&dto.candidate.job_id).await?;
+    dto.candidate.id = create_keycloak_user(&dto).await?;
 
     sqlx::query("insert into candidate values( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15);")
-    .bind(&candidate.id)
-    .bind(&candidate.first_name)
-    .bind(&candidate.last_name)
-    .bind(&candidate.birth_date)
-    .bind(&candidate.nationality_country_id)
-    .bind(&candidate.description)
-    .bind(&candidate.email)
-    .bind(&candidate.phone_number)
-    .bind(&candidate.address)
-    .bind(&candidate.gender)
-    .bind(&candidate.is_available)
-    .bind(&candidate.available_from)
-    .bind(&candidate.available_to)
-    .bind(&candidate.place)
-    .bind(&candidate.job_id)
+    .bind(&dto.candidate.id)
+    .bind(&dto.candidate.first_name)
+    .bind(&dto.candidate.last_name)
+    .bind(&dto.candidate.birth_date)
+    .bind(&dto.candidate.nationality_country_id)
+    .bind(&dto.candidate.description)
+    .bind(&dto.candidate.email)
+    .bind(&dto.candidate.phone_number)
+    .bind(&dto.candidate.address)
+    .bind(&dto.candidate.gender)
+    .bind(&dto.candidate.is_available)
+    .bind(&dto.candidate.available_from)
+    .bind(&dto.candidate.available_to)
+    .bind(&dto.candidate.place)
+    .bind(&dto.candidate.job_id)
     .execute(&state.pool).await?;
 
-    //TODO verify job id
-
-    return Ok(Json(candidate));
+    return Ok(Json(dto.candidate));
 }
 
 /// Retrieve the specified candidate
@@ -63,6 +70,7 @@ pub async fn get_candidate(
 ) -> axum::response::Result<Json<Candidate>, AppError> {
     get_candidate_db(state, user_id).await
 }
+
 /// Retrieve the logged-in candidate
 pub async fn get_candidate_self(
     State(state): State<Arc<SharedState>>,
@@ -154,6 +162,8 @@ pub async fn update_candidate(
     }: AuthHeaders,
     Valid(Json(candidate)): Valid<Json<Candidate>>,
 ) -> axum::response::Result<Json<Candidate>, AppError> {
+    check_job_valid(&candidate.job_id).await?;
+
     // The id inside the object is ignored, only the logged in ID matters
     let result = sqlx::query("UPDATE public.candidate
       SET first_name=$1, last_name=$2, birth_date=$3, nationality_country_id=$4, description=$5, email=$6, phone_number=$7, address=$8, gender=$9, is_available=$10, available_from=$11, available_to=$12, place=$13, job_id=$14
