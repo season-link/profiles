@@ -1,11 +1,9 @@
-
-
 use axum::{
     async_trait,
     extract::FromRequestParts,
     http::{request::Parts, StatusCode},
 };
-use uuid::{Uuid};
+use uuid::Uuid;
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum Role {
@@ -35,7 +33,7 @@ pub struct AuthHeaders {
 }
 
 /// Extract the auth headers from the request
-#[async_trait] 
+#[async_trait]
 impl<S> FromRequestParts<S> for AuthHeaders
 where
     S: Send + Sync,
@@ -44,11 +42,10 @@ where
 
     async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
         let user_uuid: Uuid;
-        //FIXME remove unwraps
         if let Some(user_id) = parts.headers.get("X-User-Id") {
             match Uuid::parse_str(user_id.to_str().unwrap_or_default()) {
                 Ok(id) => user_uuid = id,
-                Err(_) => return Err((StatusCode::BAD_REQUEST, "`X-User-Id` header is malformed"))
+                Err(_) => return Err((StatusCode::BAD_REQUEST, "`X-User-Id` header is malformed")),
             }
         } else {
             return Err((StatusCode::BAD_REQUEST, "`X-User-Id` header is missing"));
@@ -58,7 +55,7 @@ where
         if let Some(roles) = parts.headers.get("X-User-Roles") {
             parsed_roles = roles
                 .to_str()
-                .unwrap()
+                .unwrap_or_default()
                 .split(',')
                 .collect::<Vec<_>>()
                 .iter()
@@ -72,8 +69,13 @@ where
         if let Some(request_id) = parts.headers.get("X-Request-Id") {
             match Uuid::parse_str(request_id.to_str().unwrap_or_default()) {
                 Ok(id) => request_uuid = id,
-                Err(_) => return Err((StatusCode::BAD_REQUEST, "`X-Request-Id` header is malformed")),
-            } 
+                Err(_) => {
+                    return Err((
+                        StatusCode::BAD_REQUEST,
+                        "`X-Request-Id` header is malformed",
+                    ))
+                }
+            }
         } else {
             return Err((StatusCode::BAD_REQUEST, "`X-Request-Id` header is missing"));
         }
