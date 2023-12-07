@@ -6,7 +6,7 @@ use axum::{
     Json,
 };
 use axum_valid::Valid;
-use sqlx::{postgres::PgRow, Row};
+use sqlx::{Row};
 use uuid::Uuid;
 
 use crate::{
@@ -38,24 +38,24 @@ pub async fn create_candidate(
     dto.candidate.id = Some(create_keycloak_user(&dto).await?);
 
     sqlx::query("insert into candidate values( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15);")
-    .bind(&dto.candidate.id)
+    .bind(dto.candidate.id)
     .bind(&dto.candidate.first_name)
     .bind(&dto.candidate.last_name)
-    .bind(&dto.candidate.birth_date)
+    .bind(dto.candidate.birth_date)
     .bind(&dto.candidate.nationality_country_id)
     .bind(&dto.candidate.description)
     .bind(&dto.candidate.email)
     .bind(&dto.candidate.phone_number)
     .bind(&dto.candidate.address)
-    .bind(&dto.candidate.gender)
-    .bind(&dto.candidate.is_available)
-    .bind(&dto.candidate.available_from)
-    .bind(&dto.candidate.available_to)
+    .bind(dto.candidate.gender)
+    .bind(dto.candidate.is_available)
+    .bind(dto.candidate.available_from)
+    .bind(dto.candidate.available_to)
     .bind(&dto.candidate.place)
-    .bind(&dto.candidate.job_id)
+    .bind(dto.candidate.job_id)
     .execute(&state.pool).await?;
 
-    return Ok(Json(dto.candidate));
+    Ok(Json(dto.candidate))
 }
 
 /// Retrieve the specified candidate
@@ -122,12 +122,13 @@ pub async fn get_candidates(
     LIMIT $4;",
     )
     //.bind(&fields)
-    .bind(&list_candidate.job_id)
-    .bind(&list_candidate.start_date)
-    .bind(&list_candidate.end_date)
+    .bind(list_candidate.job_id)
+    .bind(list_candidate.start_date)
+    .bind(list_candidate.end_date)
     .bind(limit)
     .map(|row| {
-        let simple_candidate = SimpleCandidate {
+        
+        SimpleCandidate {
             id: row.get("id"),
             first_name: row.get("first_name"),
             last_name: row.get("last_name"),
@@ -143,8 +144,7 @@ pub async fn get_candidates(
             } else {
                 row.get("email")
             },
-        };
-        return simple_candidate;
+        }
     })
     .fetch_all(&state.pool)
     .await?;
@@ -170,24 +170,24 @@ pub async fn update_candidate(
       WHERE id=$15 ;")
       .bind(&candidate.first_name)
       .bind(&candidate.last_name)
-      .bind(&candidate.birth_date)
+      .bind(candidate.birth_date)
       .bind(&candidate.nationality_country_id)
       .bind(&candidate.description)
       .bind(&candidate.email)
       .bind(&candidate.phone_number)
       .bind(&candidate.address)
-      .bind(&candidate.gender)
-      .bind(&candidate.is_available)
-      .bind(&candidate.available_from)
-      .bind(&candidate.available_to)
+      .bind(candidate.gender)
+      .bind(candidate.is_available)
+      .bind(candidate.available_from)
+      .bind(candidate.available_to)
       .bind(&candidate.place)
-      .bind(&candidate.job_id)
+      .bind(candidate.job_id)
       .bind(user_uuid)
       .execute(&state.pool).await?;
 
     check_query_effective(result)?;
 
-    return Ok(Json(candidate));
+    Ok(Json(candidate))
 }
 
 /// Delete the candidate inside the DB

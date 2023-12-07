@@ -6,7 +6,7 @@ use api::{
         create_candidate, delete_candidate, get_candidate, get_candidate_self, get_candidates,
         update_candidate,
     },
-    experience::{create_experience, get_experiences, update_experience},
+    experience::{create_experience, get_experiences},
     middlewares::is_admin::is_admin,
     reference::{
         create_reference, delete_reference, get_reference, get_references, update_reference,
@@ -19,7 +19,7 @@ use axum::{
     routing::{get, post, put},
     Router,
 };
-use sqlx::{pool, postgres::PgPoolOptions, Pool, Postgres};
+use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
 
 mod api;
 

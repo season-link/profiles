@@ -1,11 +1,11 @@
-use std::ops::Deref;
+
 
 use axum::{
     async_trait,
     extract::FromRequestParts,
-    http::{request::Parts, HeaderValue, StatusCode},
+    http::{request::Parts, StatusCode},
 };
-use uuid::{uuid, Uuid};
+use uuid::{Uuid};
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum Role {
@@ -17,7 +17,7 @@ pub enum Role {
 impl From<&str> for Role {
     fn from(value: &str) -> Self {
         if value == "client_candidate" {
-            return Role::Candidate;
+            Role::Candidate
         } else if value == "client_admin" {
             return Role::Admin;
         } else {

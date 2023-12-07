@@ -29,8 +29,8 @@ pub async fn create_reference(
     println!("{:?}", reference);
 
     sqlx::query("insert into reference values ($1, $2, $3, $4, $5, $6, $7);")
-        .bind(&reference.id)
-        .bind(&user_uuid)
+        .bind(reference.id)
+        .bind(user_uuid)
         .bind(&reference.first_name)
         .bind(&reference.last_name)
         .bind(&reference.email)
@@ -40,7 +40,7 @@ pub async fn create_reference(
         .await?;
 
     // TODO verify candidate ID
-    return Ok(Json(reference));
+    Ok(Json(reference))
 }
 
 /// Retrieve references of a given user inside the DB
@@ -57,7 +57,7 @@ pub async fn get_references(
     .fetch_all(&state.pool)
     .await?;
 
-    return Ok(Json(result));
+    Ok(Json(result))
 }
 
 /// Retrieve the reference inside the DB
@@ -103,14 +103,14 @@ pub async fn update_reference(
     .bind(&reference.email)
     .bind(&reference.phone_number)
     .bind(&reference.company_name)
-    .bind(&reference_id)
-    .bind(&user_uuid)
+    .bind(reference_id)
+    .bind(user_uuid)
     .execute(&state.pool)
     .await?;
 
     check_query_effective(result)?;
 
-    return Ok(Json(reference));
+    Ok(Json(reference))
 }
 
 /// Delete the reference

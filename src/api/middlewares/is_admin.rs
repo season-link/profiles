@@ -1,4 +1,4 @@
-use std::ops::Deref;
+
 
 use axum::{http::{Request}, middleware::Next, response::Response};
 use anyhow::anyhow;
@@ -17,7 +17,7 @@ pub async fn is_admin<T>(
     next: Next<T>,
 ) -> Result<Response, AppError> {
     // Can probably be generalized for roles
-    if !roles.iter().any(|role| role.to_owned() == Role::Admin) {
+    if !roles.iter().any(|role| *role == Role::Admin) {
         return Err(AppError(anyhow!(
             "The user does not have one of the following roles: {:?}",
             Role::Admin

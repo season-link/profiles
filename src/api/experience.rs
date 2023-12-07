@@ -27,12 +27,12 @@ pub async fn create_experience(
     check_job_valid(&experience.job_id).await?;
 
     sqlx::query("insert into experience values ($1, $2, $3, $4, $5, $6, $7);")
-        .bind(&experience.id)
+        .bind(experience.id)
         .bind(user_uuid)
         .bind(&experience.company_name)
-        .bind(&experience.job_id)
-        .bind(&experience.start_time)
-        .bind(&experience.end_time)
+        .bind(experience.job_id)
+        .bind(experience.start_time)
+        .bind(experience.end_time)
         .bind(&experience.description)
         .execute(&state.pool)
         .await?;
