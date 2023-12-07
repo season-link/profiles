@@ -35,7 +35,7 @@ pub async fn create_candidate(
     println!("{:?}", dto);
 
     check_job_valid(&dto.candidate.job_id).await?;
-    dto.candidate.id = create_keycloak_user(&dto).await?;
+    dto.candidate.id = Some(create_keycloak_user(&dto).await?);
 
     sqlx::query("insert into candidate values( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15);")
     .bind(&dto.candidate.id)

@@ -7,7 +7,7 @@ use validator::{Validate, ValidationError};
 #[derive(Debug, Validate, Serialize, Deserialize, sqlx::FromRow)]
 #[validate(schema(function = "validate_category", skip_on_field_errors = false))]
 pub struct Candidate {
-    pub id: Uuid,
+    pub id: Option<Uuid>,
     #[validate(length(min = 1, max = 255))]
     pub first_name: String,
     #[validate(length(min = 1, max = 255))]

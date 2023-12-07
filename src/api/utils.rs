@@ -121,7 +121,6 @@ pub async fn create_keycloak_user(dto: &CreateCandidate) -> Result<Uuid, AppErro
         "username": dto.candidate.first_name,
         "firstName": dto.candidate.first_name,
         "lastName": dto.candidate.last_name,
-        "id": dto.candidate.id,
         "emailVerified": true
     });
 
@@ -144,9 +143,8 @@ pub async fn create_keycloak_user(dto: &CreateCandidate) -> Result<Uuid, AppErro
         .headers()
         .get("Location")
         .unwrap()
-        .to_str()
-        .unwrap();
-    let uuid = Uuid::parse_str(uuid_header.rsplit_once("/").unwrap().1).unwrap();
+        .to_str()?;
+    let uuid = Uuid::parse_str(uuid_header.rsplit_once("/").unwrap().1)?;
 
     println!("{}", &create_response.text().await?);
 
