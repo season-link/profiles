@@ -67,7 +67,7 @@ pub fn check_query_effective(query_result: PgQueryResult) -> Result<(), AppError
 pub async fn check_job_valid(job_id: &Uuid) -> Result<(), AppError> {
     let is_valid = is_job_uuid_valid(job_id).await?;
     if !is_valid {
-        return Err(AppError(anyhow!("Invalid id : {} ", job_id)));
+        return Err(AppError(anyhow!("Invalid job id : {} ", job_id)));
     }
     Ok(())
 }
