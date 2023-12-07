@@ -6,7 +6,9 @@ use api::{
         create_candidate, delete_candidate, get_candidate, get_candidate_self, get_candidates,
         update_candidate,
     },
-    experience::{create_experience, get_experiences},
+    experience::{
+        create_experience, delete_experience, get_experience, get_experiences, update_experience,
+    },
     middlewares::is_admin::is_admin,
     reference::{
         create_reference, delete_reference, get_reference, get_references, update_reference,
@@ -69,7 +71,7 @@ async fn main() -> anyhow::Result<()> {
             "/reference/:reference_id",
             get(get_reference)
                 .delete(delete_reference)
-                .put(update_candidate),
+                .put(update_reference),
         );
 
     // Register the experiences
@@ -78,9 +80,9 @@ async fn main() -> anyhow::Result<()> {
         .route("/experience", post(create_experience))
         .route(
             "/experience/:experience_id",
-            get(get_reference)
-                .delete(delete_reference)
-                .put(update_reference),
+            get(get_experience)
+                .delete(delete_experience)
+                .put(update_experience),
         );
 
     // Register fallback

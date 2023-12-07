@@ -1,4 +1,4 @@
-use std::{env};
+use std::{collections::HashMap, env, error::Error, ops::Deref, sync::Arc};
 
 use anyhow::anyhow;
 use axum::{
@@ -6,14 +6,14 @@ use axum::{
     response::{IntoResponse, Response},
 };
 
-
+use serde::Serialize;
 use serde_json::json;
-use sqlx::{postgres::PgQueryResult};
+use sqlx::{database::HasValueRef, postgres::PgQueryResult, Database, Decode};
 use uuid::Uuid;
 
+use crate::SharedState;
 
-
-use super::dtos::candidate::{CreateCandidate};
+use super::dtos::candidate::{self, Candidate, CreateCandidate};
 
 // Make our own error that wraps `anyhow::Error`.
 pub struct AppError(pub anyhow::Error);
