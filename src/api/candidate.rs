@@ -6,7 +6,7 @@ use axum::{
     Json,
 };
 use axum_valid::Valid;
-use sqlx::{Row};
+use sqlx::Row;
 use uuid::Uuid;
 
 use crate::{
@@ -103,15 +103,10 @@ pub async fn get_candidates(
     State(state): State<Arc<SharedState>>,
     Valid(Json(list_candidate)): Valid<Json<ListCandidate>>,
 ) -> axum::response::Result<Json<Vec<SimpleCandidate>>, AppError> {
-    let limit: i16;
-    match list_candidate.subscription_level {
-        SubscriptionLevel::Free | SubscriptionLevel::Silver => {
-            limit = 3;
-        }
-        SubscriptionLevel::Gold | SubscriptionLevel::Platinium => {
-            limit = 10000;
-        }
-    }
+    let limit: i16 = match list_candidate.subscription_level {
+        SubscriptionLevel::Free | SubscriptionLevel::Silver => 3,
+        SubscriptionLevel::Gold | SubscriptionLevel::Platinium => 10000,
+    };
 
     let result = sqlx::query(
         "select * from candidate c 
@@ -126,25 +121,22 @@ pub async fn get_candidates(
     .bind(list_candidate.start_date)
     .bind(list_candidate.end_date)
     .bind(limit)
-    .map(|row| {
-        
-        SimpleCandidate {
-            id: row.get("id"),
-            first_name: row.get("first_name"),
-            last_name: row.get("last_name"),
-            available_from: row.get("available_from"),
-            available_to: row.get("available_to"),
-            phone_number: if list_candidate.subscription_level == SubscriptionLevel::Free {
-                None
-            } else {
-                row.get("phone_number")
-            },
-            email: if list_candidate.subscription_level == SubscriptionLevel::Free {
-                None
-            } else {
-                row.get("email")
-            },
-        }
+    .map(|row| SimpleCandidate {
+        id: row.get("id"),
+        first_name: row.get("first_name"),
+        last_name: row.get("last_name"),
+        available_from: row.get("available_from"),
+        available_to: row.get("available_to"),
+        phone_number: if list_candidate.subscription_level == SubscriptionLevel::Free {
+            None
+        } else {
+            row.get("phone_number")
+        },
+        email: if list_candidate.subscription_level == SubscriptionLevel::Free {
+            None
+        } else {
+            row.get("email")
+        },
     })
     .fetch_all(&state.pool)
     .await?;

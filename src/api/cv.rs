@@ -1,4 +1,4 @@
-use std::{env, fs::File, sync::Arc};
+use std::{env, sync::Arc};
 
 use anyhow::anyhow;
 use aws_sdk_s3::{
@@ -6,9 +6,7 @@ use aws_sdk_s3::{
     Client,
 };
 use axum::{
-    body::Bytes,
     extract::{Multipart, Path, State},
-    http::HeaderMap,
     response::IntoResponse,
 };
 use uuid::Uuid;

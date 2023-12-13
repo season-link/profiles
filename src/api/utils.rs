@@ -1,25 +1,20 @@
-use std::{collections::HashMap, env, error::Error, ops::Deref, sync::Arc};
+use std::{env};
 
 use anyhow::anyhow;
-use aws_sdk_s3::{
-    error::SdkError,
-    operation::create_bucket::{CreateBucketError, CreateBucketOutput},
-    types::{BucketLocationConstraint, CreateBucketConfiguration},
-    Client,
-};
+
 use axum::{
     http::StatusCode,
     response::{IntoResponse, Response},
 };
 
-use serde::Serialize;
+
 use serde_json::json;
-use sqlx::{database::HasValueRef, postgres::PgQueryResult, Database, Decode};
+use sqlx::{postgres::PgQueryResult};
 use uuid::Uuid;
 
-use crate::SharedState;
 
-use super::dtos::candidate::{self, Candidate, CreateCandidate};
+
+use super::dtos::candidate::{CreateCandidate};
 
 // Make our own error that wraps `anyhow::Error`.
 pub struct AppError(pub anyhow::Error);
@@ -150,7 +145,7 @@ pub async fn create_keycloak_user(dto: &CreateCandidate) -> Result<Uuid, AppErro
         .get("Location")
         .unwrap()
         .to_str()?;
-    let uuid = Uuid::parse_str(uuid_header.rsplit_once("/").unwrap().1)?;
+    let uuid = Uuid::parse_str(uuid_header.rsplit_once('/').unwrap().1)?;
 
     println!("{}", &create_response.text().await?);
 
