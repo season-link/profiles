@@ -9,6 +9,8 @@ services:
     depends_on:
       season-link-postgres:
         condition: service_healthy
+      minio:
+        condition: service_started
 
   season-link-postgres:
     image: postgres:15-alpine
@@ -30,3 +32,17 @@ services:
       retries: 5
       start_period: 5s
     command: -p 5344
+
+  minio:
+    image: minio/minio
+    volumes:
+      - "minio_storage:/data"
+    network_mode: host
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio_pass
+
+    command: server --console-address ":9001" /data
+
+volumes:
+  minio_storage: {}

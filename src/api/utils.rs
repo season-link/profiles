@@ -1,6 +1,12 @@
 use std::{collections::HashMap, env, error::Error, ops::Deref, sync::Arc};
 
 use anyhow::anyhow;
+use aws_sdk_s3::{
+    error::SdkError,
+    operation::create_bucket::{CreateBucketError, CreateBucketOutput},
+    types::{BucketLocationConstraint, CreateBucketConfiguration},
+    Client,
+};
 use axum::{
     http::StatusCode,
     response::{IntoResponse, Response},
@@ -23,7 +29,7 @@ impl IntoResponse for AppError {
     fn into_response(self) -> Response {
         (
             StatusCode::INTERNAL_SERVER_ERROR,
-            format!("Something went wrong: {}", self.0),
+            format!("Something went wrong: {:?}", self.0),
         )
             .into_response()
     }
@@ -144,7 +150,7 @@ pub async fn create_keycloak_user(dto: &CreateCandidate) -> Result<Uuid, AppErro
         .get("Location")
         .unwrap()
         .to_str()?;
-    let uuid = Uuid::parse_str(uuid_header.rsplit_once('/').unwrap().1)?;
+    let uuid = Uuid::parse_str(uuid_header.rsplit_once("/").unwrap().1)?;
 
     println!("{}", &create_response.text().await?);
 

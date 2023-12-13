@@ -13,7 +13,7 @@ RUN cargo build
 
 FROM debian:12 as runner
 
-RUN apt update && apt install -y openssl
+RUN apt update && apt install -y openssl ca-certificates
 
 # COPY only the executable
 COPY --from=builder /build/target/debug/season-link-profiles /opt
